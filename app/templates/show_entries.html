@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block body %}
+  
+  <table id='box-table-a' border='0' width='100%'>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Dropbox</th>
+        </tr>
+    </thead>
+    <tbody>
+      {% for item in files %}
+        <tr>
+            <td align='center'>
+                {{item[0]}}
+            </td>
+            <td align='center'>
+                {% if item[1] %}
+                folder
+                {%else%}
+                file
+                {%endif}
+            </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

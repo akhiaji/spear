@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block body %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type = text/javascript>
+
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+function displayFiles(object){
+            console.log(object);
+            $("#back-button").data("id", object.data("id"));
+            $("#back-button").data("type", object.data("type"));
+            console.log($("#back-button").data());
+            $("tbody").empty();
+            $.getJSON($SCRIPT_ROOT + '/get-files', { path: object.data("id"), type:object.data("type") },
+            function(data,a,b) {
+                $(data).each(function(index,element){
+                var strOne = "<tr id = 'id_";
+                strOne = strOne.concat(element[4]);
+                strOne = strOne.concat("' onclick = 'displayFiles($(this))' data-id = '");
+                strOne = strOne.concat(element[1]);
+                strOne = strOne.concat("' data-type = '");
+                strOne = strOne.concat(element[2]);
+                strOne = strOne.concat("' > </tr>");
+                $("tbody").append(strOne);
+                var idString = "#id_";
+                idString = idString.concat(element[4]);
+                strOne = "<td>";
+                strOne = strOne.concat(element[0]);
+                strOne = strOne.concat("</td");
+                $(idString).append(strOne);     
+                strOne = "<td>";
+                var strTwo;
+                if(element[3] == 0){
+                    strTwo = "File"
+                }else{
+                    strTwo = "Folder"
+                }
+                strOne = strOne.concat(strTwo)
+                strOne = strOne.concat("</td>")
+                $(idString).append(strOne);
+                $(idString).addClass("clickable-row");
+           });
+        });
+}
+
+function backFolder(object){
+            console.log(object);
+            console.log($("#back-button").data());
+            $.getJSON($SCRIPT_ROOT + '/get-parent', { path: object.data("id"), type:object.data("type") },
+            function(info,a,b) {
+                $("#back-button").data("id", info[0]);
+                $("#back-button").data("type", info[1]);
+                $.getJSON($SCRIPT_ROOT + '/get-files', { path: $("#back-button").data("id"), type:object.data("type") },
+                    function(data,a,b) {
+                        console.log("this works")
+                        $("tbody").empty();
+                        $(data).each(function(index,element){
+                        var strOne = "<tr id = 'id_";
+                        strOne = strOne.concat(element[4]);
+                        strOne = strOne.concat("' onclick = 'displayFiles($(this))' ");
+                        strOne = strOne.concat("' > </tr>");
+                        $("tbody").append(strOne);
+                        var idString = "#id_";
+                        idString = idString.concat(element[4]);
+                        $(idString).data("id", element[1]);
+                        $(idString).data("type", element[2]);
+                        strOne = "<td>";
+                        strOne = strOne.concat(element[0]);
+                        strOne = strOne.concat("</td");
+                        $(idString).append(strOne);     
+                        strOne = "<td>";
+                        var strTwo;
+                        if(element[3] == 0){
+                            strTwo = "File";
+                        }else{
+                            strTwo = "Folder";
+                        }
+                        strOne = strOne.concat(strTwo);
+                        strOne = strOne.concat("</td>");
+                        $(idString).append(strOne);
+                        $(idString).addClass("clickable-row");
+           });
+        });
+    });
+};
+
+(function( $ ) {
+    $.fn.loading = function () {
+
+        // create loading element
+        var loadingElement = document.createElement('div');
+        loadingElement.id = 'loading';
+        loadingElement.className = 'loading';
+        loadingElement.innerHTML = 'Loading...';
+
+        // apply styles
+        loadingElement.style.position = 'fixed';
+        loadingElement.style.background = 'yellow';
+        loadingElement.style.width = '130px';
+        loadingElement.style.textAlign = 'center';
+        loadingElement.style.zIndex = '10000';
+        loadingElement.style.padding = '4px';
+        loadingElement.style.border = 'grey solid 1px';
+        loadingElement.style.display = 'none';
+
+        // attach it to DOM
+        $(this).append(loadingElement);
+
+        // position element
+        $("#loading").position({
+            my: "center top",
+            at: "center top",
+            of: window
+        });
+
+        // every time ajax is called
+        $(document).ajaxSend(function () {
+            $(loadingElement).show();
+        })
+
+        // every time ajax is completed
+        $(document).ajaxComplete(function () {
+            self.setTimeout(function (){
+                $(loadingElement).hide();
+            }, 4000);
+        });
+    };
+
+})(jQuery);
+
+
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+$(document).ready(function(){
+    $('body').loading();
+    $.getJSON($SCRIPT_ROOT + '/get-files', { path: "/", type: 1 },
+        function(data,a,b) {
+                 $("tbody").empty();
+                 $(data).each(function(index,element){
+                    var strOne = "<tr id = 'id_";
+                    strOne = strOne.concat(element[4]);
+                    strOne = strOne.concat("'  onclick = 'displayFiles($(this))'")
+                    strOne = strOne.concat("' > </tr>");
+                    $("tbody").append(strOne);
+                    var idString = "#id_";
+                    idString = idString.concat(element[4]);
+                    $(idString).data("id", element[1]);
+                    $(idString).data("type", element[2]);
+                    strOne = "<td>";
+                    strOne = strOne.concat(element[0]);
+                    strOne = strOne.concat("</td");
+                    $(idString).append(strOne);     
+                    strOne = "<td>";
+                    var strTwo;
+                    if(element[3] == 0){
+                        strTwo = "File";
+                    }else{
+                        strTwo = "Folder";
+                    }
+                    strOne = strOne.concat(strTwo);
+                    strOne = strOne.concat("</td>");
+                    $(idString).append(strOne);
+                    $(idString).addClass("clickable-row");
+
+        });
+    });
+});
+
+</script>
+<button id='back-button' onclick = 'backFolder($(this))' data-id='' data-type = ''> back </button>
+<table id='box-table-a' border='0' width='75%'>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Folder</th>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+{% endblock %}

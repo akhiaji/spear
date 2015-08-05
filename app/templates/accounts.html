@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Accounts</h2>
+ <form action="{{ url_for('accounts') }}" method=post>
+  <dl>      
+      <dt>Google Drive:
+        {%if accounts.get("google", "None") == "None" %}
+        <dd><button name="gd_in" type="submit" value="Log In">Log In</button>
+        {%else%}
+        <dd><button name="gd_in" type="submit" value="Log Out">Log Out</button>
+        {%endif%}
+      <dt>Dropbox:
+        {%if accounts.get("dropbox", "None") == "None" %}
+        <dd><button name="db_in" type="submit" value="Log In">Log In</button>
+        {%else%}
+        <dd><button name="db_in" type="submit" value="Log Out">Log Out</button>
+        {%endif%}
+
+    </dl>
+  </form>
+
+{% endblock %}
